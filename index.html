@@ -199,6 +199,7 @@
         .day-cell.weekend { background: #f5f5f5; color: #999; }
         .day-cell.holiday { background: #fff3e0; color: #f57c00; }
         .day-cell.india-trip { background: #fce4ec; color: #c2185b; }
+        .day-cell.medical-leave { background: #e8f5e8; color: #388e3c; }
         .day-cell.attended { background: #e8f5e8; color: #2e7d32; font-weight: bold; }
         .day-cell.planned { background: #e3f2fd; color: #1976d2; font-weight: bold; }
         
@@ -269,7 +270,7 @@
     <div class="container">
         <div class="header">
             <h1>🗓️ Travel Compliance Dashboard</h1>
-            <p>August 25, 2025 - February 25, 2026 • Target: 51-74% Compliance</p>
+            <p>September 29, 2025 - March 29, 2026 • Target: 51-74% Compliance</p>
         </div>
         
         <div class="stats-grid">
@@ -290,7 +291,7 @@
             <div class="stat-card">
                 <div class="stat-label">Total Workdays</div>
                 <div class="stat-number" id="totalWorkdays">0</div>
-                <small>After holidays & India trip</small>
+                <small>After holidays, medical leave & India trip</small>
             </div>
             
             <div class="stat-card">
@@ -305,16 +306,17 @@
             <div class="policy-grid">
                 <div class="policy-card">
                     <h3>Requirements</h3>
-                    <p><strong>Aug 25 - Sep 27:</strong> 4 days/week</p>
-                    <p><strong>Sep 28 onwards:</strong> 5 days/week</p>
+                    <p><strong>Sep 29 onwards:</strong> 5 days/week</p>
                     <p><strong>Target:</strong> 51-74% (approved remote work)</p>
+                    <p><strong>Medical Leave:</strong> Sep 29-Oct 5 (approved)</p>
                 </div>
                 
                 <div class="policy-card">
-                    <h3>India Trip Benefit</h3>
+                    <h3>Leave Benefits</h3>
+                    <p><strong>Medical Leave:</strong> Sep 29-Oct 5 (WFH approved)</p>
                     <p><strong>Dec 1-14:</strong> Work from India</p>
                     <p><strong>Dec 15 - Jan 9:</strong> Vacation</p>
-                    <p><strong>Impact:</strong> -35 days from requirement</p>
+                    <p><strong>Impact:</strong> Reduces net onsite requirement</p>
                 </div>
                 
                 <div class="policy-card">
@@ -335,7 +337,7 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #e8f5e8;"></div>
-                <span>Attended</span>
+                <span>Attended/Medical Leave</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #e3f2fd;"></div>
@@ -361,11 +363,8 @@
     </div>
     
     <script>
-        // Configuration
+        // Updated configuration starting Sept 29
         const plannedTrips = [
-            {start: '2025-08-25', end: '2025-08-26'},
-            {start: '2025-09-12', end: '2025-09-13'},
-            {start: '2025-10-03', end: '2025-10-04'},
             {start: '2025-10-10', end: '2025-10-11'},
             {start: '2025-10-17', end: '2025-10-18'},
             {start: '2025-10-24', end: '2025-10-25'},
@@ -373,7 +372,8 @@
             {start: '2025-11-07', end: '2025-11-08'},
             {start: '2025-11-14', end: '2025-11-15'},
             {start: '2025-11-21', end: '2025-11-22'},
-            {start: '2026-01-21', end: '2026-02-25'}
+            {start: '2026-01-21', end: '2026-02-28'}, // Extended February stay
+            {start: '2026-03-01', end: '2026-03-29'}  // March extension to reach 6-month period
         ];
 
         const holidays = [
@@ -384,20 +384,28 @@
             '2026-02-17'  // Presidents Day
         ];
 
+        // Medical leave (approved WFH) - Sept 29 - Oct 5
+        const medicalLeave = [
+            '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03', // Mon-Thu
+            // Oct 4-5 are weekend, Oct 6 is end of medical leave
+        ];
+
         const indiaTrip = [
-            // Work from India
+            // Work from India (Dec 1-14)
             ...Array.from({length: 10}, (_, i) => {
-                const date = new Date(2025, 11, 1 + i);
-                return date.toISOString().split('T')[0];
-            }),
-            // Vacation
-            ...Array.from({length: 25}, (_, i) => {
-                const date = new Date(2025, 11, 15 + i);
-                if (date.getMonth() === 0) return date.toISOString().split('T')[0];
+                const date = new Date(2025, 11, 2 + i); // Skip weekends
+                if (!isWeekend(date)) {
+                    return date.toISOString().split('T')[0];
+                }
                 return null;
             }).filter(Boolean),
-            ...Array.from({length: 9}, (_, i) => {
-                const date = new Date(2026, 0, 1 + i);
+            // Vacation (Dec 15 - Jan 9)
+            ...Array.from({length: 18}, (_, i) => {
+                const date = new Date(2025, 11, 16 + i);
+                return date.toISOString().split('T')[0];
+            }),
+            ...Array.from({length: 7}, (_, i) => {
+                const date = new Date(2026, 0, 2 + i);
                 return date.toISOString().split('T')[0];
             })
         ];
@@ -411,7 +419,7 @@
                 const end = new Date(trip.end);
                 for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                     const dateStr = d.toISOString().split('T')[0];
-                    if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr)) {
+                    if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr) && !isMedicalLeave(dateStr)) {
                         attendedDays.add(dateStr);
                     }
                 }
@@ -430,6 +438,10 @@
             return indiaTrip.includes(dateStr);
         }
 
+        function isMedicalLeave(dateStr) {
+            return medicalLeave.includes(dateStr);
+        }
+
         function isPlanned(dateStr) {
             return plannedTrips.some(trip => dateStr >= trip.start && dateStr <= trip.end);
         }
@@ -437,13 +449,13 @@
         function createCalendar() {
             const container = document.getElementById('calendarContainer');
             const months = [
-                {name: 'August 2025', year: 2025, month: 7, startDay: 25},
-                {name: 'September 2025', year: 2025, month: 8},
+                {name: 'September 2025', year: 2025, month: 8, startDay: 29},
                 {name: 'October 2025', year: 2025, month: 9},
                 {name: 'November 2025', year: 2025, month: 10},
                 {name: 'December 2025', year: 2025, month: 11},
                 {name: 'January 2026', year: 2026, month: 0},
-                {name: 'February 2026', year: 2026, month: 1, endDay: 25}
+                {name: 'February 2026', year: 2026, month: 1},
+                {name: 'March 2026', year: 2026, month: 2, endDay: 29}
             ];
 
             months.forEach(monthInfo => {
@@ -497,6 +509,16 @@
                         dayCell.classList.add('holiday');
                     } else if (isIndiaTrip(dateStr)) {
                         dayCell.classList.add('india-trip');
+                        const label = document.createElement('div');
+                        label.textContent = dateStr <= '2025-12-14' ? 'Work' : 'Vacation';
+                        label.style.fontSize = '0.6em';
+                        dayCell.appendChild(label);
+                    } else if (isMedicalLeave(dateStr)) {
+                        dayCell.classList.add('medical-leave');
+                        const label = document.createElement('div');
+                        label.textContent = 'Medical';
+                        label.style.fontSize = '0.6em';
+                        dayCell.appendChild(label);
                     } else {
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
@@ -538,12 +560,12 @@
 
         function calculateWorkdays() {
             let total = 0;
-            const start = new Date(2025, 7, 25); // Aug 25
-            const end = new Date(2026, 1, 25);   // Feb 25
+            const start = new Date(2025, 8, 29); // Sep 29
+            const end = new Date(2026, 2, 29);   // Mar 29
 
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                 const dateStr = d.toISOString().split('T')[0];
-                if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr)) {
+                if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr) && !isMedicalLeave(dateStr)) {
                     total++;
                 }
             }

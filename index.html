@@ -390,12 +390,13 @@
             '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03'
         ];
 
-        // Work from India days (Dec 1-15, excluding weekends)
+        // Work from India days (Dec 1-15 - all weekdays)
         const workFromIndiaDays = [
-            '2025-12-01', // Sunday - but you're working
-            '2025-12-02', '2025-12-03', '2025-12-04', '2025-12-05', '2025-12-06', // Mon-Fri
-            '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12', '2025-12-13', // Mon-Fri
-            '2025-12-15' // Sunday - but you're working
+            '2025-12-01', // Monday
+            '2025-12-02', '2025-12-03', '2025-12-04', '2025-12-05', // Tue-Fri
+            '2025-12-08', // Monday (skip weekend)
+            '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12', // Tue-Fri
+            '2025-12-15'  // Monday
         ];
 
         // India vacation days (Dec 16 - Jan 8)  

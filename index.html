@@ -488,77 +488,78 @@
                 }
 
                 // Days of the month
-                for (let day = startDate; day <= endDate; day++) {
-                    const date = new Date(monthInfo.year, monthInfo.month, day);
-                    const dateStr = date.toISOString().split('T')[0];
-                    const dayCell = document.createElement('div');
-                    dayCell.className = 'day-cell';
+for (let day = startDate; day <= endDate; day++) {
+    const date = new Date(monthInfo.year, monthInfo.month, day);
+    const dateStr = date.toISOString().split('T')[0];
+    const dayCell = document.createElement('div');
+    dayCell.className = 'day-cell';
 
-                    const dayNumber = document.createElement('div');
-                    dayNumber.className = 'day-number';
-                    dayNumber.textContent = day;
-                    dayCell.appendChild(dayNumber);
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = day;
+    dayCell.appendChild(dayNumber);
 
-                    if (isWeekend(date)) {
-                        dayCell.classList.add('weekend');
-                    } else if (isHoliday(dateStr)) {
-                        dayCell.classList.add('holiday');
-                    } else if (isMedicalLeave(dateStr)) {
-                        dayCell.classList.add('medical-leave');
-                        const label = document.createElement('div');
-                        label.textContent = 'Medical';
-                        label.style.fontSize = '0.6em';
-                        dayCell.appendChild(label);
-                    } else if (isWorkFromIndia(dateStr)) {
-                        dayCell.classList.add('work-from-india');
-                        const label = document.createElement('div');
-                        label.textContent = 'WFH India';
-                        label.style.fontSize = '0.6em';
-                        dayCell.appendChild(label);
-                    } else if (isIndiaVacation(dateStr)) {
-                        dayCell.classList.add('india-trip');
-                        const label = document.createElement('div');
-                        label.textContent = 'Vacation';
-                        label.style.fontSize = '0.6em';
-                        dayCell.appendChild(label);
-                    } else {
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.className = 'day-checkbox';
-                        checkbox.id = `day-${dateStr}`;
+    if (isHoliday(dateStr)) {
+        dayCell.classList.add('holiday');
+    } else if (isMedicalLeave(dateStr)) {
+        dayCell.classList.add('medical-leave');
+        const label = document.createElement('div');
+        label.textContent = 'Medical';
+        label.style.fontSize = '0.6em';
+        dayCell.appendChild(label);
+    } else if (isWorkFromIndia(dateStr)) {
+        dayCell.classList.add('work-from-india');
+        const label = document.createElement('div');
+        label.textContent = 'WFH India';
+        label.style.fontSize = '0.6em';
+        dayCell.appendChild(label);
+    } else if (isIndiaVacation(dateStr)) {
+        dayCell.classList.add('india-trip');
+        const label = document.createElement('div');
+        label.textContent = 'Vacation';
+        label.style.fontSize = '0.6em';
+        dayCell.appendChild(label);
+    } else {
+        // Add checkbox for ALL other days (including weekends)
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'day-checkbox';
+        checkbox.id = `day-${dateStr}`;
 
-                        // Apply weekend styling but still allow checkbox
-                        if (isWeekend(date)) {
-                            dayCell.classList.add('weekend');
-                        }
+        // Apply weekend styling but still allow checkbox
+        if (isWeekend(date)) {
+            dayCell.classList.add('weekend');
+        }
 
-                        if (attendedDays.has(dateStr)) {
-                            checkbox.checked = true;
-                            dayCell.classList.add('attended');
-                        } else if (isPlanned(dateStr)) {
-                            dayCell.classList.add('planned');
-                        }
+        if (attendedDays.has(dateStr)) {
+            checkbox.checked = true;
+            dayCell.classList.add('attended');
+        } else if (isPlanned(dateStr)) {
+            dayCell.classList.add('planned');
+        }
 
-                    checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        attendedDays.add(dateStr);
-                        dayCell.classList.add('attended');
-                        dayCell.classList.remove('planned');
-                    } else {
-                        attendedDays.delete(dateStr);
-                        dayCell.classList.remove('attended');
-                        if (isPlanned(dateStr)) {
-                            dayCell.classList.add('planned');
-                        }
-                    }
-                    updateStats();
-                    });
-
-                    dayCell.appendChild(checkbox);
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                attendedDays.add(dateStr);
+                dayCell.classList.add('attended');
+                dayCell.classList.remove('planned');
+            } else {
+                attendedDays.delete(dateStr);
+                dayCell.classList.remove('attended');
+                if (isPlanned(dateStr)) {
+                    dayCell.classList.add('planned');
                 }
+            }
+            updateStats();
+        });
 
-                    calendar.appendChild(dayCell);
-                }
+        dayCell.appendChild(checkbox);
+    }
+
+    calendar.appendChild(dayCell);
+}
+
+  
 
                 monthCard.appendChild(calendar);
                 container.appendChild(monthCard);

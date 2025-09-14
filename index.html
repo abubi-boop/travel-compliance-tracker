@@ -199,6 +199,7 @@
         .day-cell.weekend { background: #f5f5f5; color: #999; }
         .day-cell.holiday { background: #fff3e0; color: #f57c00; }
         .day-cell.india-trip { background: #fce4ec; color: #c2185b; }
+        .day-cell.work-from-india { background: #e8f5e8; color: #2e7d32; }
         .day-cell.medical-leave { background: #e8f5e8; color: #388e3c; }
         .day-cell.attended { background: #e8f5e8; color: #2e7d32; font-weight: bold; }
         .day-cell.planned { background: #e3f2fd; color: #1976d2; font-weight: bold; }
@@ -314,8 +315,8 @@
                 <div class="policy-card">
                     <h3>Leave Benefits</h3>
                     <p><strong>Medical Leave:</strong> Sep 29-Oct 5 (WFH approved)</p>
-                    <p><strong>Dec 1-14:</strong> Work from India</p>
-                    <p><strong>Dec 15 - Jan 9:</strong> Vacation</p>
+                    <p><strong>Work from India:</strong> Dec 1,2,12,15 & Jan 9</p>
+                    <p><strong>India Vacation:</strong> Dec 16 - Jan 8</p>
                     <p><strong>Impact:</strong> Reduces net onsite requirement</p>
                 </div>
                 
@@ -337,7 +338,7 @@
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #e8f5e8;"></div>
-                <span>Attended/Medical Leave</span>
+                <span>Attended/Medical/WFH India</span>
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #e3f2fd;"></div>
@@ -353,7 +354,7 @@
             </div>
             <div class="legend-item">
                 <div class="legend-color" style="background: #fce4ec;"></div>
-                <span>India Trip</span>
+                <span>India Vacation</span>
             </div>
         </div>
         
@@ -386,27 +387,23 @@
 
         // Medical leave (approved WFH) - Sept 29 - Oct 5
         const medicalLeave = [
-            '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03', // Sun-Thu
-            // Oct 4-5 are weekend, Oct 6 is end of medical leave
+            '2025-09-29', '2025-09-30', '2025-10-01', '2025-10-02', '2025-10-03'
         ];
 
-        const indiaTrip = [
-            // Work from India - specific dates
-            '2025-12-01', '2025-12-02', '2025-12-03', '2025-12-04', '2025-12-05', 
-            '2025-12-06', '2025-12-09', '2025-12-10', '2025-12-11', '2025-12-12', 
-            '2025-12-13', '2025-12-15', // Dec 1,2,12,15 are WFH, others are vacation
-            // Vacation period
-            '2025-12-16', '2025-12-17', '2025-12-18', '2025-12-19', '2025-12-20',
-            '2025-12-21', '2025-12-23', '2025-12-24', '2025-12-26', '2025-12-27',
-            '2025-12-28', '2025-12-30', '2025-12-31', '2026-01-01', '2026-01-02',
-            '2026-01-03', '2026-01-06', '2026-01-07', '2026-01-08', '2026-01-09'
+        // Work from India days
+        const workFromIndiaDays = [
+            '2025-12-01', '2025-12-02', '2025-12-12', '2025-12-15', '2026-01-09'
         ];
 
-        function isWorkFromIndia(dateStr) {
-            const workFromIndiaDates = ['2025-12-01', '2025-12-02', '2025-12-12', '2025-12-15', '2026-01-09'];
-            return workFromIndiaDates.includes(dateStr);
-        }
-        
+        // India vacation days  
+        const indiaVacationDays = [
+            '2025-12-03', '2025-12-04', '2025-12-05', '2025-12-06', '2025-12-09', 
+            '2025-12-10', '2025-12-11', '2025-12-13', '2025-12-16', '2025-12-17', 
+            '2025-12-18', '2025-12-19', '2025-12-20', '2025-12-23', '2025-12-24', 
+            '2025-12-26', '2025-12-27', '2025-12-30', '2025-12-31', '2026-01-01', 
+            '2026-01-02', '2026-01-03', '2026-01-06', '2026-01-07', '2026-01-08'
+        ];
+
         let attendedDays = new Set();
         
         // Initialize with planned trips
@@ -416,7 +413,8 @@
                 const end = new Date(trip.end);
                 for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                     const dateStr = d.toISOString().split('T')[0];
-                    if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr) && !isMedicalLeave(dateStr)) {
+                    if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaVacation(dateStr) && 
+                        !isMedicalLeave(dateStr) && !isWorkFromIndia(dateStr)) {
                         attendedDays.add(dateStr);
                     }
                 }
@@ -431,12 +429,16 @@
             return holidays.includes(dateStr);
         }
 
-        function isIndiaTrip(dateStr) {
-            return indiaTrip.includes(dateStr);
+        function isIndiaVacation(dateStr) {
+            return indiaVacationDays.includes(dateStr);
         }
 
         function isMedicalLeave(dateStr) {
             return medicalLeave.includes(dateStr);
+        }
+
+        function isWorkFromIndia(dateStr) {
+            return workFromIndiaDays.includes(dateStr);
         }
 
         function isPlanned(dateStr) {
@@ -504,21 +506,22 @@
                         dayCell.classList.add('weekend');
                     } else if (isHoliday(dateStr)) {
                         dayCell.classList.add('holiday');
-                    } else if (isIndiaTrip(dateStr)) {
-                        dayCell.classList.add('india-trip');
-                        const label = document.createElement('div');
-                        if (isWorkFromIndia(dateStr)) {
-                            label.textContent = 'WFH India';
-                            label.style.fontSize = '0.6em';
-                        } else {
-                            label.textContent = 'Vacation';
-                            label.style.fontSize = '0.6em';
-                        }
-                        dayCell.appendChild(label); 
-                    }else if (isMedicalLeave(dateStr)) {
+                    } else if (isMedicalLeave(dateStr)) {
                         dayCell.classList.add('medical-leave');
                         const label = document.createElement('div');
                         label.textContent = 'Medical';
+                        label.style.fontSize = '0.6em';
+                        dayCell.appendChild(label);
+                    } else if (isWorkFromIndia(dateStr)) {
+                        dayCell.classList.add('work-from-india');
+                        const label = document.createElement('div');
+                        label.textContent = 'WFH India';
+                        label.style.fontSize = '0.6em';
+                        dayCell.appendChild(label);
+                    } else if (isIndiaVacation(dateStr)) {
+                        dayCell.classList.add('india-trip');
+                        const label = document.createElement('div');
+                        label.textContent = 'Vacation';
                         label.style.fontSize = '0.6em';
                         dayCell.appendChild(label);
                     } else {
@@ -567,7 +570,8 @@
 
             for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                 const dateStr = d.toISOString().split('T')[0];
-                if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaTrip(dateStr) && !isMedicalLeave(dateStr)) {
+                if (!isWeekend(d) && !isHoliday(dateStr) && !isIndiaVacation(dateStr) && 
+                    !isMedicalLeave(dateStr) && !isWorkFromIndia(dateStr)) {
                     total++;
                 }
             }

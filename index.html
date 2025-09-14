@@ -527,6 +527,11 @@
                         checkbox.className = 'day-checkbox';
                         checkbox.id = `day-${dateStr}`;
 
+                        // Apply weekend styling but still allow checkbox
+                        if (isWeekend(date)) {
+                            dayCell.classList.add('weekend');
+                        }
+
                         if (attendedDays.has(dateStr)) {
                             checkbox.checked = true;
                             dayCell.classList.add('attended');
@@ -534,23 +539,23 @@
                             dayCell.classList.add('planned');
                         }
 
-                        checkbox.addEventListener('change', function() {
-                            if (this.checked) {
-                                attendedDays.add(dateStr);
-                                dayCell.classList.add('attended');
-                                dayCell.classList.remove('planned');
-                            } else {
-                                attendedDays.delete(dateStr);
-                                dayCell.classList.remove('attended');
-                                if (isPlanned(dateStr)) {
-                                    dayCell.classList.add('planned');
-                                }
-                            }
-                            updateStats();
-                        });
-
-                        dayCell.appendChild(checkbox);
+                    checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        attendedDays.add(dateStr);
+                        dayCell.classList.add('attended');
+                        dayCell.classList.remove('planned');
+                    } else {
+                        attendedDays.delete(dateStr);
+                        dayCell.classList.remove('attended');
+                        if (isPlanned(dateStr)) {
+                            dayCell.classList.add('planned');
+                        }
                     }
+                    updateStats();
+                    });
+
+                    dayCell.appendChild(checkbox);
+                }
 
                     calendar.appendChild(dayCell);
                 }
